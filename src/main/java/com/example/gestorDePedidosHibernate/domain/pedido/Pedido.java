@@ -25,7 +25,7 @@ public class Pedido implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id_pedido;
     private String fecha;
-    private String total;
+    private double total;
 
     @ManyToOne
     @JoinColumn(name = "usuario_id")

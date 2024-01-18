@@ -80,22 +80,24 @@ public class PedidoDAO implements DAO<Pedido> {
      * @param usuario Usuario por el cual filtrar los pedidos
      * @return Lista de los pedidos del usuario
      */
-    public List<Pedido> pedidosDeUnUsuario( Usuario usuario ) {
+    public List<Pedido> pedidosDeUnUsuario(Usuario usuario) {
+        List<Pedido> salida = new ArrayList<>();
 
-        List<Pedido> salida = new ArrayList<>( );
-        try ( Session s = HibernateUtils.getSessionFactory( ).openSession( ) ) {
-            Query<Usuario> q = s.createQuery( "from Usuario where id_usuario =: id" , Usuario.class );
-            q.setParameter( "id" , usuario.getId_usuario( ) );
-            salida = q.getSingleResult( ).getPedidos( );
-        }
-        for (Pedido pedido : salida) {
-            Double total = 0.0;
-            for (Item item : pedido.getItems( )) {
-                total = total + item.getCantidad( ) * item.getProducto( ).getPrecio( );
+        try (Session s = HibernateUtils.getSessionFactory().openSession()) {
+            Query<Usuario> q = s.createQuery("from Usuario where id_usuario =: id", Usuario.class);
+            q.setParameter("id", usuario.getId_usuario());
+            Usuario usuarioResultado = q.getSingleResult();
+
+            if (usuarioResultado != null) {
+                salida = usuarioResultado.getPedidos();
+
+                for (Pedido pedido : salida) {
+                    Double total = calcularTotalPedido(pedido);
+                    pedido.setTotal(total);
+                }
             }
-            DecimalFormat formato = new DecimalFormat( "#0.00" );
-            pedido.setTotal( formato.format( total ) );
         }
+
         return salida;
     }
 
@@ -180,11 +182,28 @@ public class PedidoDAO implements DAO<Pedido> {
     /**
      * Actualiza la fecha del pedido pulsado
      */
-    public void actualizarFecha(Pedido ped){
-        HibernateUtils.getSessionFactory().inTransaction(s -> {
-            Pedido p = s.get( Pedido.class , ped.getId_pedido() );
-            p.setFecha( LocalDate.now().toString() );
+    public void actualizarFechaYTotal(Pedido pedido) {
+        HibernateUtils.getSessionFactory().inTransaction(session -> {
+            Pedido p = session.get(Pedido.class, pedido.getId_pedido());
+
+            // Actualizar la fecha
+            p.setFecha(LocalDate.now().toString());
+
+            // Calcular y actualizar el total como Double
+            Double total = calcularTotalPedido(p);
+            p.setTotal(total);
+
+            // Guardar la entidad actualizada
+            session.update(p);
         });
+    }
+
+    public Double calcularTotalPedido(Pedido pedido) {
+        Double total = 0.0;
+        for (Item item : pedido.getItems()) {
+            total += item.getCantidad() * item.getProducto().getPrecio();
+        }
+        return total;
     }
 
 

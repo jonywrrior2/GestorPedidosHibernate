@@ -72,34 +72,47 @@ public class PedidosController implements Initializable {
     /**
      * Llenar la tabla de valores de la base de datos
      */
-    private void rellenarTabla( ) {
-        Usuario usuario = Sesion.getUsuarioActual( );
-        pedidoDAO = new PedidoDAO( );
-        List<Pedido> pedidosDeUser = pedidoDAO.pedidosDeUnUsuario( usuario );
+    private void rellenarTabla() {
+        Usuario usuario = Sesion.getUsuarioActual();
+        pedidoDAO = new PedidoDAO();
+        List<Pedido> pedidosDeUser = pedidoDAO.pedidosDeUnUsuario(usuario);
 
-        //Cambiar Titulo
-        labelNombre.setText( "Pedidos de " + usuario.getNombreusuario( ) );
-        //Rellenar la tabla
-        cId.setCellValueFactory( ( fila ) -> {
-            Long id = fila.getValue( ).getId_pedido( );
-            return new SimpleStringProperty( id.toString( ) );
-        } );
-        cFecha.setCellValueFactory( ( fila ) -> {
-            String fecha = fila.getValue( ).getFecha( );
-            return new SimpleStringProperty( fecha );
-        } );
-        cUsuario.setCellValueFactory( ( fila ) -> {
-            String nombre = Sesion.getUsuarioActual( ).getNombreusuario( );
-            return new SimpleStringProperty( nombre );
-        } );
-        cTotal.setCellValueFactory( ( fila ) -> {
-            String total = fila.getValue( ).getTotal( );
-            return new SimpleStringProperty( total );
-        } );
-        ObservableList<Pedido> observableList = FXCollections.observableArrayList( );
-        observableList.addAll( pedidosDeUser );
-        tablaPedidos.setItems( observableList );
+        // Cambiar Titulo
+        labelNombre.setText("Pedidos de " + usuario.getNombreusuario());
+
+        // Rellenar la tabla
+        cId.setCellValueFactory(fila -> {
+            Long id = fila.getValue().getId_pedido();
+            return new SimpleStringProperty(id.toString());
+        });
+        cFecha.setCellValueFactory(fila -> {
+            String fecha = fila.getValue().getFecha();
+            return new SimpleStringProperty(fecha);
+        });
+        cUsuario.setCellValueFactory(fila -> {
+            String nombre = Sesion.getUsuarioActual().getNombreusuario();
+            return new SimpleStringProperty(nombre);
+        });
+        cTotal.setCellValueFactory(fila -> {
+            Double total = calcularTotalPedido(fila.getValue());
+            return new SimpleStringProperty(String.valueOf(total));
+        });
+
+        ObservableList<Pedido> observableList = FXCollections.observableArrayList();
+        observableList.addAll(pedidosDeUser);
+        tablaPedidos.setItems(observableList);
     }
+
+    private Double calcularTotalPedido(Pedido pedido) {
+        Double total = 0.0;
+
+        for (Item item : pedido.getItems()) {
+            total += item.getCantidad() * item.getProducto().getPrecio();
+        }
+
+        return total;
+    }
+
 
     /**
      * Función botón logout
