@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.text.DecimalFormat;
 import java.util.List;
 
 /**
@@ -44,4 +45,6 @@ public class Pedido implements Serializable {
                 ", items=" + items +
                 '}';
     }
+
+
 }

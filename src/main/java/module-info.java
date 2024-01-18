@@ -7,6 +7,9 @@ module com.example.gestorjegoshibernate {
     requires org.hibernate.orm.core;
     requires java.naming;
     requires java.sql;
+    requires jasperreports;
+    requires java.desktop;
+    requires javafx.swing;
 
     opens com.example.gestorDePedidosHibernate.domain.usuario;
     opens com.example.gestorDePedidosHibernate.domain.pedido;
