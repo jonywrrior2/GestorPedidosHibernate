@@ -112,7 +112,6 @@ public class DetallesPedidoController implements Initializable
     public void visualizarPedido(ActionEvent actionEvent) {
         String codigoPedido = String.valueOf(Sesion.getPedidoPulsado().getId_pedido());
         Stage primaryStage = new Stage();
-        System.out.println(codigoPedido);
         try {
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost/gestionpedidos", "root", "");
 
